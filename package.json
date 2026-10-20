@@ -1,0 +1,19 @@
+{
+  "name": "atelier-ecommerce",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Boutique e-commerce simple avec Express et SQLite",
+  "main": "server.js",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^5.1.0",
+    "express-session": "^1.18.2"
+  }
+}

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mes commandes — Atelier</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/app.js" defer></script>
+  </head>
+  <body data-page="orders">
+    <header class="site-header">
+      <a class="brand" href="/">atelier<span>.</span></a>
+      <nav class="main-nav" aria-label="Navigation principale"><a href="/#boutique">La boutique</a><a href="/#histoire">Notre histoire</a></nav>
+      <div class="header-actions"><a class="account-link" href="/auth.html" data-account-link>Mon compte</a><a class="cart-link" href="/cart.html">Panier <span class="cart-count" data-cart-count>0</span></a></div>
+    </header>
+    <main class="page-wrap">
+      <p class="eyebrow">VOTRE ESPACE</p>
+      <h1 class="page-title">Mes commandes</h1>
+      <div class="orders-list" data-orders-list><p class="loading-message">Chargement…</p></div>
+    </main>
+    <footer class="site-footer"><a class="brand brand-light" href="/">atelier<span>.</span></a><p>Des objets choisis pour le quotidien.</p><span>© <span data-year></span> Atelier — Avec soin, en France.</span></footer>
+  </body>
+</html>
