@@ -1,6 +1,6 @@
 # Atelier — boutique en ligne
 
-Petite boutique e-commerce en français, réalisée en HTML, CSS, JavaScript, Express et SQLite.
+Petite boutique e-commerce en français, réalisée en HTML, CSS, JavaScript, Express et SQLite...
 
 ## Prérequis
 
