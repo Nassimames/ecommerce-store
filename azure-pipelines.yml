@@ -3,7 +3,7 @@ trigger:
 - main
 
 pool:
-vmImage: ubuntu-latest
+  vmImage: ubuntu-24.04
 
 variables:
 imageRepository: ecommerce-store
@@ -15,10 +15,10 @@ steps:
 
 - checkout: self
 
-- task: NodeTool@0
+- task: UseNode@1
   displayName: Install Node.js 22
   inputs:
-  versionSpec: '22.x'
+    version: '22.x'
 
 - script: |
   node --version
