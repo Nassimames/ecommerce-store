@@ -2,7 +2,11 @@ trigger:
   - main
 
 pool:
+<<<<<<< HEAD
   vmImage: ubuntu-latest
+=======
+  vmImage: ubuntu-24.04
+>>>>>>> 084173472f7fbe1b00f013eec5a74f4ef83b6a18
 
 variables:
   imageRepository: ecommerce-store
@@ -18,12 +22,19 @@ steps:
     inputs:
       versionSpec: "22.x"
 
+<<<<<<< HEAD
   - script: |
       node --version
       npm --version
       npm ci
       npm test
     displayName: Install dependencies and run tests
+=======
+- task: UseNode@1
+  displayName: Install Node.js 22
+  inputs:
+    version: '22.x'
+>>>>>>> 084173472f7fbe1b00f013eec5a74f4ef83b6a18
 
   - task: Docker@2
     displayName: Build and push Docker image to ACR
