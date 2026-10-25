@@ -1,80 +1,26 @@
-trigger:
-- main
+trigger: none
 
 pool:
   vmImage: ubuntu-latest
 
-variables:
-  imageRepository: ecommerce-store
-  acrLoginServer: nassimaecommerce2026.azurecr.io
-  azureResourceGroup: rg-ecommerce-devops
-  webAppName: ecommerce-store-nassima-2026
-
 steps:
-- checkout: self
+  - checkout: self
 
-- task: NodeTool@0
-  displayName: Install Node.js 22
-  inputs:
-    versionSpec: '22.x'
+  - task: NodeTool@0
+    displayName: Install Node.js 22
+    inputs:
+      versionSpec: "22.x"
 
-- script: |
-    node --version
-    npm --version
-    npm ci
-  displayName: Install and validate dependencies
+  - script: |
+      npm ci
+      npm test
+    displayName: Validate application
 
-- task: Docker@2
-  displayName: Build and push Docker image to ACR
-  inputs:
-    command: buildAndPush
-    containerRegistry: acr-ecommerce-connection
-    repository: $(imageRepository)
-    Dockerfile: $(Build.SourcesDirectory)/Dockerfile
-    buildContext: $(Build.SourcesDirectory)
-    tags: |
-      $(Build.BuildId)
-
-- task: AzureCLI@2
-  displayName: Deploy container to Azure App Service
-  inputs:
-    azureSubscription: azure-ecommerce-connection
-    scriptType: bash
-    scriptLocation: inlineScript
-    inlineScript: |
-      set -euo pipefail
-
-      IMAGE="$(acrLoginServer)/$(imageRepository):$(Build.BuildId)"
-
-      echo "Deploying image: $IMAGE"
-
-      az webapp config container set \
-        --name "$(webAppName)" \
-        --resource-group "$(azureResourceGroup)" \
-        --docker-custom-image-name "$IMAGE" \
-        --docker-registry-server-url "https://$(acrLoginServer)"
-
-      az webapp restart \
-        --name "$(webAppName)" \
-        --resource-group "$(azureResourceGroup)"
-
-- script: |
-    set -eu
-
-    URL="https://ecommerce-store-nassima-2026-b9csadbuf5gef2cf.westeurope-01.azurewebsites.net/cart.html"
-
-    echo "Checking application availability..."
-
-    for attempt in $(seq 1 18); do
-      if curl --fail --silent "$URL" -o /dev/null; then
-        echo "Smoke test passed."
-        exit 0
-      fi
-
-      echo "Attempt $attempt failed. Retrying in 10 seconds..."
-      sleep 10
-    done
-
-    echo "Smoke test failed."
-    exit 1
-  displayName: Smoke test deployed application
+  - task: Docker@2
+    displayName: Build container image
+    inputs:
+      command: build
+      Dockerfile: $(Build.SourcesDirectory)/Dockerfile
+      buildContext: $(Build.SourcesDirectory)
+      tags: |
+        atelier-ecommerce:validation

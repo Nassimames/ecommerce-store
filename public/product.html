@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#faf9f6">
     <title>Produit — Atelier</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,14 +13,15 @@
   </head>
   <body data-page="product">
     <header class="site-header">
-      <a class="brand" href="/">atelier<span>.</span></a>
-      <nav class="main-nav" aria-label="Navigation principale"><a href="/#boutique">La boutique</a><a href="/#histoire">Notre histoire</a></nav>
+      <a class="brand" href="/" aria-label="Atelier, accueil">atelier<span>.</span></a>
+      <button class="menu-toggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false" data-menu-toggle><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      <nav class="main-nav" aria-label="Navigation principale" data-main-nav><a href="/#boutique">La boutique</a><a href="/#histoire">Notre histoire</a><a href="/favorites.html">Favoris</a></nav>
       <div class="header-actions"><a class="account-link" href="/auth.html" data-account-link>Mon compte</a><a class="cart-link" href="/cart.html">Panier <span class="cart-count" data-cart-count>0</span></a></div>
     </header>
     <main class="page-wrap">
       <a class="back-link" href="/#boutique">← Retour à la boutique</a>
       <section class="product-detail" data-product-detail><p class="loading-message">Chargement du produit…</p></section>
     </main>
-    <footer class="site-footer"><a class="brand brand-light" href="/">atelier<span>.</span></a><p>Des objets choisis pour le quotidien.</p><span>© <span data-year></span> Atelier — Avec soin, en France.</span></footer>
+    <footer class="site-footer"><div class="footer-main"><div class="footer-brand"><a class="brand brand-light" href="/">atelier<span>.</span></a><p>Des objets choisis pour le quotidien.</p></div><div class="footer-links"><h2>La boutique</h2><a href="/#boutique">Tous les produits</a><a href="/favorites.html">Mes favoris</a><a href="/cart.html">Mon panier</a></div><div class="footer-links"><h2>Mon espace</h2><a href="/auth.html">Se connecter</a><a href="/account.html">Mon compte</a><a href="/orders.html">Mes commandes</a></div></div><div class="footer-bottom"><span>© <span data-year></span> Atelier</span><span>Des choix simples, pour longtemps.</span></div></footer>
   </body>
 </html>

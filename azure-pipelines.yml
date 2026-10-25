@@ -1,87 +1,95 @@
 trigger:
-
-- main
+  - main
 
 pool:
-vmImage: ubuntu-latest
+  vmImage: ubuntu-latest
 
 variables:
-imageRepository: ecommerce-store
-acrLoginServer: nassimaecommerce2026.azurecr.io
-azureResourceGroup: rg-ecommerce-devops
-webAppName: ecommerce-store-nassima-2026
+  imageRepository: ecommerce-store
+  acrLoginServer: nassimaecommerce2026.azurecr.io
+  azureResourceGroup: rg-ecommerce-devops
+  webAppName: ecommerce-store-nassima-2026
 
 steps:
+  - checkout: self
 
-- checkout: self
+  - task: NodeTool@0
+    displayName: Install Node.js 22
+    inputs:
+      versionSpec: "22.x"
 
-- task: NodeTool@0
-  displayName: Install Node.js 22
-  inputs:
-  versionSpec: '22.x'
+  - script: |
+      node --version
+      npm --version
+      npm ci
+      npm test
+    displayName: Install dependencies and run tests
 
-- script: |
-  node --version
-  npm --version
-  npm ci
-  displayName: Install and validate dependencies
-  
-- task: Docker@2
-  displayName: Build and push Docker image to ACR
-  inputs:
-  command: buildAndPush
-  containerRegistry: acr-ecommerce-connection
-  repository: $(imageRepository)
-  Dockerfile: $(Build.SourcesDirectory)/Dockerfile
-  buildContext: $(Build.SourcesDirectory)
-  tags: |
-  $(Build.BuildId)
+  - task: Docker@2
+    displayName: Build and push Docker image to ACR
+    inputs:
+      command: buildAndPush
+      containerRegistry: acr-ecommerce-connection
+      repository: $(imageRepository)
+      Dockerfile: $(Build.SourcesDirectory)/Dockerfile
+      buildContext: $(Build.SourcesDirectory)
+      tags: |
+        $(Build.BuildId)
 
-- task: AzureCLI@2
-  displayName: Deploy container to Azure App Service
-  inputs:
-  azureSubscription: azure-ecommerce-connection
-  scriptType: bash
-  scriptLocation: inlineScript
-  inlineScript: |
-  set -euo pipefail
+  - task: AzureCLI@2
+    displayName: Deploy container to Azure App Service
+    inputs:
+      azureSubscription: azure-ecommerce-connection
+      scriptType: bash
+      scriptLocation: inlineScript
+      inlineScript: |
+        set -euo pipefail
+        secret_placeholder='$''(SESSION_SECRET)'
+        if [ -z "${SESSION_SECRET:-}" ] || [ "$SESSION_SECRET" = "$secret_placeholder" ]; then
+          echo "Configure SESSION_SECRET as a secret pipeline variable."
+          exit 1
+        fi
 
-  ```
-  IMAGE="$(acrLoginServer)/$(imageRepository):$(Build.BuildId)"
+        IMAGE="$(acrLoginServer)/$(imageRepository):$(Build.BuildId)"
+        echo "Deploying image: $IMAGE"
 
-  echo "Deploying image: $IMAGE"
+        az webapp config container set \
+          --name "$(webAppName)" \
+          --resource-group "$(azureResourceGroup)" \
+          --docker-custom-image-name "$IMAGE" \
+          --docker-registry-server-url "https://$(acrLoginServer)"
 
-  az webapp config container set \
-    --name "$(webAppName)" \
-    --resource-group "$(azureResourceGroup)" \
-    --docker-custom-image-name "$IMAGE" \
-    --docker-registry-server-url "https://$(acrLoginServer)"
+        az webapp config appsettings set \
+          --name "$(webAppName)" \
+          --resource-group "$(azureResourceGroup)" \
+          --settings \
+            NODE_ENV=production \
+            COOKIE_SECURE=true \
+            WEBSITES_PORT=3000 \
+            WEBSITES_ENABLE_APP_SERVICE_STORAGE=true \
+            SQLITE_PATH=/home/data/shop.sqlite \
+            "SESSION_SECRET=$SESSION_SECRET"
 
-  az webapp restart \
-    --name "$(webAppName)" \
-    --resource-group "$(azureResourceGroup)"
-  ```
+        az webapp restart \
+          --name "$(webAppName)" \
+          --resource-group "$(azureResourceGroup)"
+    env:
+      SESSION_SECRET: $(SESSION_SECRET)
 
-* script: |
-  set -eu
+  - script: |
+      set -eu
+      URL="https://ecommerce-store-nassima-2026-b9csadbuf5gef2cf.westeurope-01.azurewebsites.net/api/products"
 
-  URL="https://ecommerce-store-nassima-2026-b9csadbuf5gef2cf.westeurope-01.azurewebsites.net/cart.html"
+      echo "Checking deployed application..."
+      for attempt in $(seq 1 18); do
+        if curl --fail --silent "$URL" -o /dev/null; then
+          echo "Smoke test passed."
+          exit 0
+        fi
+        echo "Attempt $attempt failed. Retrying in 10 seconds..."
+        sleep 10
+      done
 
-  echo "Checking application availability..."
-
-  for attempt in $(seq 1 18); do
-  if curl --fail --silent "$URL" -o /dev/null; then
-  echo "Smoke test passed."
-  exit 0
-  fi
-
-  ```
-  echo "Attempt $attempt failed. Retrying in 10 seconds..."
-  sleep 10
-  ```
-
-  done
-
-  echo "Smoke test failed."
-  exit 1
-  displayName: Smoke test deployed application
+      echo "Smoke test failed."
+      exit 1
+    displayName: Smoke test deployed API
